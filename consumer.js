@@ -13,7 +13,7 @@ const publisher = async () => {
         },
         auth: {
             user: "umut.karapinar01@icloud.com",
-            pass: "mkni-eecr-jjbd-zdgm",
+            pass: "dvmy-tjts-lkpm-znzb",
         },
     });
 
@@ -31,11 +31,12 @@ const publisher = async () => {
         })
         channel.bindQueue(process.env.QUEUE_NAME, exchange.exchange, 'sys.mail')
         channel.consume(process.env.QUEUE_NAME, async message => {
+            console.log(message.content.toString());
 
             let parse = JSON.parse(message.content.toString());
             transporter
                 .sendMail({                                                     //mail gönerem işlemini yapan arakaş
-                    from: ' "AI lı bir şeler A.Ş." <' + parse.from + '>',
+                    from: ' "AI lı bir şeler A.Ş." <' + parse.from.address + '>',
                     to: parse.to,
                     subject: parse.subject,
                     html: parse.html,
