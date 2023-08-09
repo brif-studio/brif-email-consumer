@@ -1,0 +1,21 @@
+{
+  "name": "brif-email-consumer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "consumer.js",
+  "scripts": {
+    "test": "nodemon consumer.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "brif-email-consumer"
+  },
+  "author": "umutzan",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "dotenv": "^16.3.1",
+    "nodemailer": "^6.9.4",
+    "nodemon": "^3.0.1"
+  }
+}
