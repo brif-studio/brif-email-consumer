@@ -5,15 +5,15 @@ require('dotenv').config()
 const publisher = async () => {
 
     let transporter = nodemailer.createTransport({
-        host: "smtp.mail.me.com",
-        port: 587,
+        host: process.env.SERVER_HOST,
+        port: process.env.SERVER_PORT,
         tls: {
             rejectUnauthorized: true,
             minVersion: "TLSv1.2",
         },
         auth: {
-            user: "umut.karapinar01@icloud.com",
-            pass: "dvmy-tjts-lkpm-znzb",
+            user: process.env.ICLOUD_ADDRESS,
+            pass: process.env.ICLOUD_PASSWORD,
         },
     });
 
