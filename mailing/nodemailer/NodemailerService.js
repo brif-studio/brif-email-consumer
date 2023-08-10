@@ -7,7 +7,11 @@ class NodemailerService{
         const transport = nodemailer.createTransport({
             host: process.env.SERVER_HOST,
             port: process.env.SERVER_PORT,
-            secure: true,
+            tls: {
+            rejectUnauthorized: true,
+            minVersion: "TLSv1.2",
+        },
+ 
             auth: {
                 user: process.env.SENDER_ADDRESS,
                 pass: process.env.SENDER_PASSWORD,
