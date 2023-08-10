@@ -4,6 +4,7 @@
   "description": "",
   "main": "consumer.js",
   "scripts": {
+    "start": "node consumer.js",
     "test": "nodemon consumer.js"
   },
   "repository": {

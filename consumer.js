@@ -1,54 +1,53 @@
 const amqplib = require('amqplib')
-const nodemailer = require('nodemailer')
+const mailService = require('./mailing/MailService')
 require('dotenv').config()
 
-const publisher = async () => {
-
-    let transporter = nodemailer.createTransport({
-        host: "smtp.mail.me.com",
-        port: 587,
-        tls: {
-            rejectUnauthorized: true,
-            minVersion: "TLSv1.2",
-        },
-        auth: {
-            user: "umut.karapinar01@icloud.com",
-            pass: "dvmy-tjts-lkpm-znzb",
-        },
-    });
-
-
+const consumer = async () => {
 
     try {
-        const connection = await amqplib.connect("amqp://localhost:5672")
+        let connection = await amqplib.connect({
+            protocol: 'amqp',
+            hostname: process.env.RABBITMQ_HOST,
+            port: process.env.RABBITMQ_PORT,
+            username: process.env.RABBITMQ_USERNAME,
+            password: process.env.RABBITMQ_PASSWORD,
+            vhost: process.env.RABBITMQ_USERNAME,
+            heartbeat: 10
+        })
+        console.log('Connected to RabbitMQ')
+
+        connection.on('close', async ()=>{
+            connection = await amqplib.connect({
+                protocol: 'amqp',
+                hostname: process.env.RABBITMQ_HOST,
+                port: process.env.RABBITMQ_PORT,
+                username: process.env.RABBITMQ_USERNAME,
+                password: process.env.RABBITMQ_PASSWORD,
+                vhost: process.env.RABBITMQ_USERNAME,
+                heartbeat: 10
+            })
+        })
+
+        connection.on('error', (err) => {
+            console.log(err)
+        })
+
+        connection.on('blocked', (reason) => {
+            console.log(reason)
+        })
+
         const channel = await connection.createChannel()
         const exchange = await channel.assertExchange(process.env.EXCHANGE_NAME, 'topic', {
             durable: false
         })
 
         await channel.assertQueue(process.env.QUEUE_NAME, {
-            exclusive: true
+            durable: true
         })
         channel.bindQueue(process.env.QUEUE_NAME, exchange.exchange, 'sys.mail')
         channel.consume(process.env.QUEUE_NAME, async message => {
-            console.log(message.content.toString());
-
-            let parse = JSON.parse(message.content.toString());
-            transporter
-                .sendMail({                                                     //mail gönerem işlemini yapan arakaş
-                    from: ' "AI lı bir şeler A.Ş." <' + parse.from.address + '>',
-                    to: parse.to,
-                    subject: parse.subject,
-                    html: parse.html,
-                })
-                .then(() => {
-                    channel.ack(message)
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-
-
+            let mail = JSON.parse(message.content.toString());
+            mailService.sendMail(mail)
         })
     } catch (error) {
         console.log(error)
@@ -56,4 +55,4 @@ const publisher = async () => {
 
 }
 
-publisher()
+consumer()
