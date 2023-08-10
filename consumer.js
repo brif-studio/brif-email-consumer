@@ -16,7 +16,7 @@ const consumer = async () => {
         })
         console.log('Connected to RabbitMQ')
 
-        connection.on('close', async ()=>{
+        connection.on('close', async () => {
             connection = await amqplib.connect({
                 protocol: 'amqp',
                 hostname: process.env.RABBITMQ_HOST,
@@ -47,7 +47,9 @@ const consumer = async () => {
         channel.bindQueue(process.env.QUEUE_NAME, exchange.exchange, 'sys.mail')
         channel.consume(process.env.QUEUE_NAME, async message => {
             let mail = JSON.parse(message.content.toString());
-            mailService.sendMail(mail)
+            await mailService.sendMail(mail)
+            channel.ack(message)
+
         })
     } catch (error) {
         console.log(error)
